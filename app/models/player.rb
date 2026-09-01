@@ -11,4 +11,8 @@ class Player < ApplicationRecord
   def generate_token
     self.token ||= SecureRandom.urlsafe_base64(24)
   end
+
+  # hand is deck -> shuffled -> sliced (player_index * hand_size : hand_size) - 
+  def hand_for(state)
+  end
 end

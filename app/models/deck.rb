@@ -72,6 +72,20 @@ class Deck
   }.freeze
 
   def self.shuffled(seed)
-    RANK_ORDER.to_a.shuffle(random: Random.new(seed)).to_h
+    RANK_ORDER.to_a.shuffle(random: Random.new(seed)).to_h.values
+  end
+
+  def self.deal(seed, round, size)
+    hash = Digest::SHA256.hexdigest(seed + round.to_s)
+
+    self.shuffled(hash.to_i(16)).each_slice(size).to_a
+  end
+
+  def self.size
+    RANK_ORDER.size
+  end
+
+  def self.rank(card)
+    RANK_ORDER[card]
   end
 end

@@ -5,7 +5,6 @@ class GameState
   include ActiveModel::Attributes
 
   attribute :game_id, :integer
-  attribute :phase, :string
   attribute :round, :integer, default: 0
   attribute :turn_player_index, :integer, default: 0
   attribute :dealer_index, :integer, default: 0
@@ -13,6 +12,7 @@ class GameState
   attribute :bids, default: -> { {} }          # { player_id => bid } for current round
   attribute :tricks_won, default: -> { {} }    # { player_id => count } for current round
   attribute :current_trick, default: -> { [] } # [[player_id, card], ...]
+  attribute :hands, default: -> { {} }         # { player_id => [cards] }
   attribute :hook, :integer
   attribute :last_move_id, :integer
   attribute :hand_size, :integer
@@ -28,6 +28,8 @@ class GameState
       lives: game.players.ids.index_with { game.starting_lives },
       hand_size: 1
     )
+
+    initial.advance_round!
 
     game.moves.order(:id).reduce(initial) { |state, move| state.apply(move) }
   end
@@ -47,7 +49,7 @@ class GameState
   end
 
   def bidding_phase?
-    bids.size < alive_players
+    bids.size < alive_players.size
   end
 
   def self.cache_key_for(game)
@@ -90,7 +92,7 @@ class GameState
     winner_id = sorted_trick.first
     self.tricks_won = tricks_won.merge(winner_id => tricks_won.fetch(winner_id, 0) + 1)
     self.current_trick = []
-    self.turn_player_id = winner_id
+    self.turn_player_index = alive_players.index(winner_id)
   end
 
   def advance_round!
@@ -101,15 +103,17 @@ class GameState
     self.bids = {}
     self.tricks_won = {}
     self.dealer_index = next_index(dealer_index)
-    self.hand_size = RANK_ORDER.size / alive_players
+    self.turn_player_index = dealer_index
+    self.hand_size = (self.hand_size + 1) % (Deck.size / alive_players.count)
+    self.hands = alive_players.zip(Deck.deal(game.seed, round, hand_size)).to_h
   end
 
   def next_index(index)
-    (index + 1) % alive_players
+    (index + 1) % alive_players.count
   end
 
   def alive_players
-    lives.values.reject(&:zero?).count
+    lives.reject { |_, value| value.zero? }
   end
 
   def round_over?
@@ -117,6 +121,6 @@ class GameState
   end
 
   def sorted_trick
-    current_trick.sort_by { |_, card| -RANK_ORDER[card] }
+    current_trick.sort_by { |_, card| -Deck.rank(card) }
   end
 end
