@@ -11,4 +11,8 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "posts#index"
+
+  get "/games/:seed", to: "games#show", as: :game
+  post "/games/:seed/moves", to: "games#move", as: :move
+  post "/games/:seed/players", to: "games#join", as: :join
 end

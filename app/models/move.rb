@@ -7,11 +7,11 @@ class Move < ApplicationRecord
 
   # validate
   # TODO: validate game phase
-  validates :player, comparison: { equal_to: state.current_player }
+  validates :player, comparison: { equal_to: -> { state.current_player } }
 
   # bid validations
-  validates :bid, comparison: { greater_than_or_equal_to: 0, less_than_or_equal_to: state.hand_size }
-  validates :bid, comparison: { other_than: state.hook }, if: -> { state.hook.present? }
+  validates :bid, comparison: { greater_than_or_equal_to: 0, less_than_or_equal_to: -> { state.hand_size } }
+  validates :bid, comparison: { other_than: -> { state.hook } }, if: -> { state.hook.present? }
 
   def bid
     Integer(value, exception: false)

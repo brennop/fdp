@@ -1,0 +1,9 @@
+<% if @current_player.nil? %>
+  <h2>Join this game</h2>
+  <%= form_with url: join_path(@game.seed), method: :post do |f| %>
+    <%= f.text_field :name, placeholder: "Your name", required: true %>
+    <%= f.submit "Join" %>
+  <% end %>
+<% else %>
+  <p>Playing as <strong><%= @current_player.name %></strong></p>
+<% end %>

@@ -5,4 +5,8 @@ class Game < ApplicationRecord
   def state
     GameState.for(self)
   end
+
+  def to_param
+    seed
+  end
 end
