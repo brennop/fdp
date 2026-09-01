@@ -4,13 +4,16 @@
   <ul>
     <% @game.players.each_with_index do |player, index| %>
       <li>
-        <p><%= player.name %> - <%= state.lives[player.id] %>/ 5 ♥  - <%= state.tricks_won[player.id] %> / <%= state.bids[player.id] %>🪙</p>
+        <p><%= player.name %> - <%= state.lives[player.id] %>/ 5 ♥  - <%= state.tricks_won[player.id] || 0 %> / <%= state.bids[player.id] %>🪙</p>
         <p><%= index %> - turn: <%= index == state.turn_player_index %> - dealer: <%= index == state.dealer_index %></p>
       </li>
     <% end %>
   </ul>
 
-  <pre>
-    <%= JSON.pretty_generate(state.attributes) %>
-  </pre>
+  <details>
+    <summary>game state</summary>
+    <pre>
+      <%= JSON.pretty_generate(state.attributes) %>
+    </pre>
+  </details>
 </div>

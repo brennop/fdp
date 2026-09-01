@@ -40,6 +40,6 @@ class Move < ApplicationRecord
 
   # TODO: handle played cards
   def legal_cards
-    player.hand_for(state.round)
+    state.hands[player.id]
   end
 end

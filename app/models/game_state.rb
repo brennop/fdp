@@ -78,9 +78,10 @@ class GameState
 
   def apply_card(move)
     self.current_trick = current_trick + [ [ move.player_id, move.value ] ]
+    self.hands = hands.merge(move.player_id => hands[move.player_id] - [move.value])
     self.turn_player_index = next_index(turn_player_index)
 
-    if current_trick.size == alive_players
+    if current_trick.size == alive_players.size
       resolve_trick!
       advance_round! if round_over?
     end
@@ -89,10 +90,10 @@ class GameState
   end
 
   def resolve_trick!
-    winner_id = sorted_trick.first
+    winner_id = sorted_trick.first.first
     self.tricks_won = tricks_won.merge(winner_id => tricks_won.fetch(winner_id, 0) + 1)
     self.current_trick = []
-    self.turn_player_index = alive_players.index(winner_id)
+    self.turn_player_index = alive_players.keys.index(winner_id)
   end
 
   def advance_round!
@@ -105,7 +106,7 @@ class GameState
     self.dealer_index = next_index(dealer_index)
     self.turn_player_index = dealer_index
     self.hand_size = (self.hand_size + 1) % (Deck.size / alive_players.count)
-    self.hands = alive_players.zip(Deck.deal(game.seed, round, hand_size)).to_h
+    self.hands = alive_players.keys.zip(Deck.deal(game.seed, round, hand_size)).to_h
   end
 
   def next_index(index)

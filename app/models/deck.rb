@@ -72,7 +72,7 @@ class Deck
   }.freeze
 
   def self.shuffled(seed)
-    RANK_ORDER.to_a.shuffle(random: Random.new(seed)).to_h.values
+    RANK_ORDER.to_a.shuffle(random: Random.new(seed)).to_h.keys
   end
 
   def self.deal(seed, round, size)

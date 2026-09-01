@@ -4,7 +4,7 @@
   <% if state.bidding_phase? %>
     <%= form.collection_radio_buttons :value, (0..state.hand_size), :itself, :itself %>
   <% else %>
-    todo
+    <%= form.collection_radio_buttons :value, state.hands[@current_player.id], :itself, :itself %>
   <% end %>
 
   <%= form.submit "play" %>
