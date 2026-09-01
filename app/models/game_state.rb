@@ -19,8 +19,7 @@ class GameState
   attribute :hand_size, :integer, default: -1
 
   def self.for(game)
-    # Rails.cache.fetch(cache_key_for(game)) { compute(game) }
-    compute(game)
+    Rails.cache.fetch(cache_key_for(game)) { compute(game) }
   end
 
   def self.compute(game)
@@ -54,7 +53,7 @@ class GameState
 
   def self.cache_key_for(game)
     last_id = game.moves.maximum(:id) || 0
-    "game_state/#{game.id}/#{last_id}"
+    "game_state/#{game.seed}/#{last_id}"
   end
 
   def turn_player_id
@@ -66,7 +65,7 @@ class GameState
   end
 
   def game_over?
-    alive_players.size > 1
+    alive_players.size <= 1
   end
 
   # TODO: hook
@@ -78,7 +77,7 @@ class GameState
 
   def apply_card(move)
     self.current_trick = current_trick + [ [ move.player_id, move.value ] ]
-    self.hands = hands.merge(move.player_id => hands[move.player_id] - [move.value])
+    self.hands = hands.merge(move.player_id => hands[move.player_id] - [ move.value ])
     self.turn_player_index = next_index(turn_player_index)
 
     if current_trick.size == alive_players.size
@@ -100,14 +99,19 @@ class GameState
     self.lives = lives.merge(
       bids.to_h { |pid, bid| [ pid, lives[pid] - (tricks_won.fetch(pid, 0) - bid).abs ] }
     )
+
     self.round += 1
     self.bids = {}
     self.tricks_won = {}
+
+    return self if alive_players.empty?
+
     self.dealer_index = next_index(dealer_index)
     self.turn_player_index = dealer_index
     self.hand_size = (self.hand_size + 1) % (Deck.size / alive_players.count)
     self.hand_size += 1 if self.hand_size == 0
     self.hands = alive_players.zip(Deck.deal(game.seed, round, hand_size)).to_h
+    self
   end
 
   def next_index(index)
