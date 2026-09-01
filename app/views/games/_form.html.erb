@@ -1,0 +1,11 @@
+<%= form_with model: Move.new(game: @game), url: move_path(@game) do |form| %>
+  <%= form.hidden_field :game_id %>
+
+  <% if state.bidding_phase? %>
+    <%= form.collection_radio_buttons :value, (0..state.hand_size), :itself, :itself %>
+  <% else %>
+    todo
+  <% end %>
+
+  <%= form.submit "play" %>
+<% end %>

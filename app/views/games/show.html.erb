@@ -1,9 +1,32 @@
-<% if @current_player.nil? %>
-  <h2>Join this game</h2>
-  <%= form_with url: join_path(@game.seed), method: :post do |f| %>
-    <%= f.text_field :name, placeholder: "Your name", required: true %>
-    <%= f.submit "Join" %>
+<%= turbo_stream_from "game_state" %>
+
+<% if @game.lobby? %>
+  <%= turbo_stream_from @game %>
+
+  <% if @current_player.nil? %>
+    <h2>Join this game</h2>
+    <%= form_with url: join_path(@game), method: :post do |f| %>
+      <%= f.text_field :name, placeholder: "Your name", required: true %>
+      <%= f.submit "Join" %>
+    <% end %>
+  <% else %>
+    <p>Playing as <strong><%= @current_player.name %></strong></p>
+
+    <%= button_to "Ready", ready_path(@game), method: :post %>
   <% end %>
-<% else %>
-  <p>Playing as <strong><%= @current_player.name %></strong></p>
+
+  <ul>
+    <% @game.players.each do |player| %>
+      <li>
+        <%= player.name %> - <%= player.ready %>
+      </li>
+    <% end %>
+  </ul>
+<% elsif @game.playing? %>
+  <div class="grid rows-2 h-full">
+    <%= render partial: "state", locals: { state: @game.state } %>
+    <%= render partial: "form", locals: { state: @game.state } %>
+  </div>
+<% elsif @game.ended? %>
+  winner: @game.state.winner
 <% end %>

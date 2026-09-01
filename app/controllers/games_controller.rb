@@ -19,6 +19,24 @@ class GamesController < ApplicationController
     redirect_to game_path(@game)
   end
 
+  def ready
+    @current_player.update(ready: !@current_player.ready)
+
+    @game.start! if @game.ready?
+
+    redirect_to game_path(@game)
+  end
+
+  def move
+    @move = @current_player.moves.build(move_params)
+
+    if @move.save
+      redirect_to game_path(@game)
+    else
+      redirect_to game_path(@game), alert: @move.errors.full_messages.to_sentence
+    end
+  end
+
   private
 
   def set_game
@@ -28,5 +46,9 @@ class GamesController < ApplicationController
   def set_current_player
     token = cookies.signed["player_token_#{@game.id}"]
     @current_player = @game.players.find_by(token: token)
+  end
+
+  def move_params
+    params.require(:move).permit(:value, :game_id)
   end
 end

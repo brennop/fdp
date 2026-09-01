@@ -15,4 +15,5 @@ Rails.application.routes.draw do
   get "/games/:seed", to: "games#show", as: :game
   post "/games/:seed/moves", to: "games#move", as: :move
   post "/games/:seed/players", to: "games#join", as: :join
+  post "/games/:seed/ready", to: "games#ready", as: :ready
 end

@@ -1,11 +1,5 @@
 # frozen_string_literal: true
 
-# export type Phase =
-#   | 'idle'
-#   | 'bidding'
-#   | 'playing'
-#   | 'roundComplete'
-#   | 'gameComplete';
 class GameState
   include ActiveModel::Model
   include ActiveModel::Attributes
@@ -24,13 +18,22 @@ class GameState
   attribute :hand_size, :integer
 
   def self.for(game)
-    Rails.cache.fetch(cache_key_for(game)) { compute(game) }
+    # Rails.cache.fetch(cache_key_for(game)) { compute(game) }
+    compute(game)
   end
 
   def self.compute(game)
-    initial = new(lives: game.players.index_with { game.starting_lives })
+    initial = new(
+      game_id: game.id,
+      lives: game.players.ids.index_with { game.starting_lives },
+      hand_size: 1
+    )
 
     game.moves.order(:id).reduce(initial) { |state, move| state.apply(move) }
+  end
+
+  def game
+    Game.find(game_id)
   end
 
   def apply(move)
@@ -44,7 +47,7 @@ class GameState
   end
 
   def bidding_phase?
-    bids.size < turn_order.size
+    bids.size < alive_players
   end
 
   def self.cache_key_for(game)
@@ -63,8 +66,6 @@ class GameState
   def game_over?
     alive_players > 1
   end
-
-  private
 
   # TODO: hook
   def apply_bid(move)

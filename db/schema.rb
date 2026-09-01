@@ -10,11 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_09_01_125129) do
+ActiveRecord::Schema[8.0].define(version: 2026_09_01_130112) do
   create_table "games", force: :cascade do |t|
     t.string "seed"
-    t.string "status"
-    t.integer "starting_lives"
+    t.integer "status", default: 0, null: false
+    t.integer "starting_lives", default: 5
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["seed"], name: "index_games_on_seed"
@@ -36,6 +36,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_01_125129) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "token", null: false
+    t.boolean "ready"
     t.index ["game_id"], name: "index_players_on_game_id"
     t.index ["token"], name: "index_players_on_token", unique: true
   end
