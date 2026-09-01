@@ -3,11 +3,12 @@
 class GameState
   include ActiveModel::Model
   include ActiveModel::Attributes
+  include Turbo::Broadcastable
 
   attribute :game_id, :integer
-  attribute :round, :integer, default: 0
-  attribute :turn_player_index, :integer, default: 0
-  attribute :dealer_index, :integer, default: 0
+  attribute :round, :integer, default: -1
+  attribute :turn_player_index, :integer, default: -1
+  attribute :dealer_index, :integer, default: -1
   attribute :lives, default: -> { {} }         # { player_id => lives_remaining }
   attribute :bids, default: -> { {} }          # { player_id => bid } for current round
   attribute :tricks_won, default: -> { {} }    # { player_id => count } for current round
@@ -15,7 +16,7 @@ class GameState
   attribute :hands, default: -> { {} }         # { player_id => [cards] }
   attribute :hook, :integer
   attribute :last_move_id, :integer
-  attribute :hand_size, :integer
+  attribute :hand_size, :integer, default: -1
 
   def self.for(game)
     # Rails.cache.fetch(cache_key_for(game)) { compute(game) }
@@ -25,8 +26,7 @@ class GameState
   def self.compute(game)
     initial = new(
       game_id: game.id,
-      lives: game.players.ids.index_with { game.starting_lives },
-      hand_size: 1
+      lives: game.players.ids.index_with { game.starting_lives }
     )
 
     initial.advance_round!
@@ -58,7 +58,7 @@ class GameState
   end
 
   def turn_player_id
-    game.players.order(:id).to_a[turn_player_index].id
+    alive_players.to_a[turn_player_index]
   end
 
   def current_player
@@ -66,7 +66,7 @@ class GameState
   end
 
   def game_over?
-    alive_players > 1
+    alive_players.size > 1
   end
 
   # TODO: hook
@@ -93,12 +93,12 @@ class GameState
     winner_id = sorted_trick.first.first
     self.tricks_won = tricks_won.merge(winner_id => tricks_won.fetch(winner_id, 0) + 1)
     self.current_trick = []
-    self.turn_player_index = alive_players.keys.index(winner_id)
+    self.turn_player_index = alive_players.index(winner_id)
   end
 
   def advance_round!
     self.lives = lives.merge(
-      tricks_won.to_h { |pid, won| [ pid, lives[pid] - (won - bids.fetch(pid, 0)).abs ] }
+      bids.to_h { |pid, bid| [ pid, lives[pid] - (tricks_won.fetch(pid, 0) - bid).abs ] }
     )
     self.round += 1
     self.bids = {}
@@ -106,7 +106,8 @@ class GameState
     self.dealer_index = next_index(dealer_index)
     self.turn_player_index = dealer_index
     self.hand_size = (self.hand_size + 1) % (Deck.size / alive_players.count)
-    self.hands = alive_players.keys.zip(Deck.deal(game.seed, round, hand_size)).to_h
+    self.hand_size += 1 if self.hand_size == 0
+    self.hands = alive_players.zip(Deck.deal(game.seed, round, hand_size)).to_h
   end
 
   def next_index(index)
@@ -114,7 +115,7 @@ class GameState
   end
 
   def alive_players
-    lives.reject { |_, value| value.zero? }
+    lives.select { |_, value| value.positive? }.keys
   end
 
   def round_over?

@@ -5,7 +5,6 @@ class GamesController < ApplicationController
   before_action :set_current_player
 
   def show
-    @state = GameState.for(@game)
   end
 
   def join
@@ -29,12 +28,9 @@ class GamesController < ApplicationController
 
   def move
     @move = @current_player.moves.build(move_params)
+    @move.save
 
-    if @move.save
-      redirect_to game_path(@game)
-    else
-      redirect_to game_path(@game), alert: @move.errors.full_messages.to_sentence
-    end
+    render :show
   end
 
   private

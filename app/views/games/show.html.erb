@@ -1,4 +1,4 @@
-<%= turbo_stream_from "game_state" %>
+<%= turbo_stream_from dom_id(@game, :state) %>
 
 <% if @game.lobby? %>
   <%= turbo_stream_from @game %>
@@ -23,9 +23,11 @@
     <% end %>
   </ul>
 <% elsif @game.playing? %>
-  <div class="grid rows-2 h-full">
-    <%= render partial: "state", locals: { state: @game.state } %>
-    <%= render partial: "form", locals: { state: @game.state } %>
+  <%= turbo_stream_from dom_id(@current_player, :form) %>
+
+  <div class="flex flex-col h-full">
+    <%= render partial: "state", locals: { state: @game.state, game: @game } %>
+    <%= render partial: "form", locals: { state: @game.state, game: @game, player: @current_player } %>
   </div>
 <% elsif @game.ended? %>
   winner: @game.state.winner

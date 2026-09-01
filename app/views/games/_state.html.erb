@@ -1,14 +1,20 @@
-<div class="border">
+<div id="state" class="p-4 flex-1">
   <p>round: <%= state.round %></p>
 
   <ul>
-    <% @game.players.each_with_index do |player, index| %>
-      <li>
-        <p><%= player.name %> - <%= state.lives[player.id] %>/ 5 ♥  - <%= state.tricks_won[player.id] || 0 %> / <%= state.bids[player.id] %>🪙</p>
-        <p><%= index %> - turn: <%= index == state.turn_player_index %> - dealer: <%= index == state.dealer_index %></p>
+    <% game.players.each_with_index do |player, index| %>
+      <li class="flex gap-1 items-center">
+        <%= player.name %> - <%= state.lives[player.id] %>/ 5 ♥  - <%= state.tricks_won[player.id] || 0 %> / <%= state.bids[player.id] %>🪙
+        <% if player.in_turn? %>
+          <span class="w-2 h-2 bg-green-400 rounded-full inline-block"></span>
+        <% end %>
       </li>
     <% end %>
   </ul>
+
+  <% state.sorted_trick.each do |player, card| %>
+    <span class="text-9xl"><%= unicode_for(card) %></span>
+  <% end %>
 
   <details>
     <summary>game state</summary>

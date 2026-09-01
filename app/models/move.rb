@@ -9,6 +9,8 @@ class Move < ApplicationRecord
   validates :player, comparison: { equal_to: :current_turn_player }
   validates :value, inclusion: { in: :legal_values }
 
+  after_create_commit :broadcast_state
+
   def bid
     Integer(value, exception: false)
   end
@@ -38,8 +40,25 @@ class Move < ApplicationRecord
     (0..state.hand_size).map(&:to_s)
   end
 
-  # TODO: handle played cards
   def legal_cards
     state.hands[player.id]
+  end
+
+  def broadcast_state
+    state.broadcast_replace_to(
+      "state_game_#{state.game_id}",
+      target: "state",
+      partial: "games/state",
+      locals: { state:, game: }
+    )
+
+    Player.where(id: state.alive_players).each do |player|
+      player.broadcast_replace_to(
+        "form_player_#{player.id}",
+        target: "move_form",
+        partial: "games/form",
+        locals: { state:, game:, player: }
+      )
+    end
   end
 end
