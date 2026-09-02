@@ -7,7 +7,7 @@ class Player < ApplicationRecord
   before_validation :generate_token, on: :create
 
   def in_turn?
-    game.state.current_player == self
+    game.state.turn_player_id == id
   end
 
   def can_play?

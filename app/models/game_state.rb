@@ -35,7 +35,7 @@ class GameState
   end
 
   def apply(move)
-    raise Exceptions::IllegalMove, "It's #{current_player.name} turn to play" if move.player != current_player
+    raise Exceptions::IllegalMove, "It's #{current_player.name} turn to play" if move.player.id != turn_player_id
 
     next_state = self.class.new(attributes.merge(last_move_id: move.id))
 

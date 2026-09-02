@@ -6,6 +6,7 @@ class Move < ApplicationRecord
 
   validate :legal_move
 
+  after_create_commit :cache_state
   after_create_commit :broadcast_state
 
   # should be the state up until now but if moves are immutable, it's only read
@@ -54,5 +55,9 @@ class Move < ApplicationRecord
 
   def ancestor_cond
     [ "id < ?", id ] if id?
+  end
+
+  def cache_state
+    Rails.cache.write("game_state/#{id}", state)
   end
 end
