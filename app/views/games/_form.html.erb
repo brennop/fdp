@@ -15,7 +15,7 @@
 
     <% if state.bidding_phase? && player.in_turn? %>
       <ul class="flex gap-1 flex-wrap">
-        <% (0..state.hand_size).each do |bid| %>
+        <% state.legal_bids.each do |bid| %>
           <li class="">
             <%= form.label :value, value: bid, class: "flex flex-col gap-0.5 p-4 has-checked:bg-indigo-100" do %>
               <span class="text-2xl"><%= bid %></span>

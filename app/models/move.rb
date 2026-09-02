@@ -44,12 +44,7 @@ class Move < ApplicationRecord
       # the POST will aready render
       next if player == self.player
 
-      player.broadcast_replace_to(
-        "player_#{player.id}",
-        target: "state",
-        partial: "games/state",
-        locals: { state:, game:, player: }
-      )
+      player.broadcast_state_change state, game
     end
   end
 

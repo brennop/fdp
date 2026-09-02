@@ -50,6 +50,10 @@ class GameState
     bids.size < alive_players.size
   end
 
+  def last_bidder?
+    alive_players.size - bids.size == 1
+  end
+
   def turn_player_id
     alive_players.to_a[turn_player_index]
   end
@@ -62,13 +66,23 @@ class GameState
     alive_players.size <= 1
   end
 
+  def winner
+    Player.find_by(id: alive_players.first)
+  end
+
   def hook
-    bids
+    hand_size - bids.values.sum
+  end
+
+  def legal_bids
+    return (0..hand_size).to_a - [hook] if last_bidder?
+
+    (0..hand_size)
   end
 
   # TODO: hook
   def apply_bid(move)
-    raise Exceptions::IllegalMove, "Can't bid #{move.value}" unless (0..hand_size).map(&:to_s).include? move.value
+    raise Exceptions::IllegalMove, "Can't bid #{move.value}" unless legal_bids.map(&:to_s).include? move.value
 
     self.bids = bids.merge(move.player_id => move.value.to_i)
     self.turn_player_index = next_index(turn_player_index)

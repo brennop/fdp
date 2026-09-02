@@ -14,6 +14,15 @@ class Player < ApplicationRecord
     in_turn? and game.state.bids[id] != nil
   end
 
+  def broadcast_state_change(state, game)
+    broadcast_replace_to(
+      "player_#{id}",
+      target: "state",
+      partial: "games/state",
+      locals: { state:, game:, player: self }
+    )
+  end
+
   private
 
   def generate_token

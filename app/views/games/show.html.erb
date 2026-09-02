@@ -26,6 +26,4 @@
   <div class="flex flex-col h-full">
     <%= render partial: "state", locals: { state: @game.state, game: @game, player: @current_player } %>
   </div>
-<% elsif @game.ended? %>
-  winner: @game.state.winner
 <% end %>

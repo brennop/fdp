@@ -36,6 +36,12 @@ class GamesController < ApplicationController
     end
   end
 
+  def reset
+    @game.moves.destroy_all
+
+    @game.players.each { |player| player.broadcast_state_change @game.state, @game }
+  end
+
   private
 
   def set_game

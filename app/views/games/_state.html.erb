@@ -1,31 +1,43 @@
 <%= turbo_frame_tag "state", class: "p-4 flex-1 flex flex-col" do %>
-  <div class="flex-1">
-    <ul class="flex gap-4 flex-wrap text-sm font-mono">
-      <% game.players.each_with_index do |player, index| %>
-        <li class="flex flex-col <%= player.in_turn? ? 'bg-amber-100' : '' %>">
-          <span class="">
-            <%= player.name %>
-            <% case state.current_trick.to_h[player.id] %>
-            <% in nil %>
-            <% in card %>
-              <span class="<%= color_for(card) %> w-12 bg-white"><%= short_for(card) %></span>
-            <% end %>
-          </span>
-          <span class="">
-            <%= state.lives[player.id] %> ♥
-            ·
-            <%= state.tricks_won[player.id] || 0 %> / <%= state.bids[player.id] || "?" %>$
-          </span>
+  <% if state.game_over? %>
+    <span><strong class="font-semibold">winner:</strong> <%= state.winner.name %></span>
+
+    <%= button_to "again", reset_path(seed: @game.seed), method: :delete %>
+  <% else %>
+    <div class="flex-1">
+      <ul class="flex gap-4 flex-wrap text-sm font-mono">
+        <% game.players.each_with_index do |player, index| %>
+          <li class="flex flex-col <%= player.in_turn? ? 'bg-amber-100' : '' %>">
+            <span class="">
+              <%= player.name %>
+              <% case state.current_trick.to_h[player.id] %>
+                <% in nil %>
+                <% in card %>
+                <span class="<%= color_for(card) %> w-12 bg-white"><%= short_for(card) %></span>
+              <% end %>
+            </span>
+            <span class="">
+              <%= state.lives[player.id] %> ♥
+              ·
+              <%= state.tricks_won[player.id] || 0 %> / <%= state.bids[player.id] || "?" %>$
+            </span>
+          </li>
+        <% end %>
+
+
+        <li class="flex flex-col">
+          <p>hand size: <%= state.hand_size %></p>
+          <p>table bid: <%= state.bids.values.sum %> </p>
         </li>
-      <% end %>
-    </ul>
+      </ul>
 
-    <div class="flex">
-      <% state.display_trick.reverse.each do |player, card| %>
-        <span class="text-9xl <%= color_for(card) %> w-12 bg-white"><%= unicode_for(card) %></span>
-      <% end %>
+      <div class="flex">
+        <% state.display_trick.reverse.each do |player, card| %>
+          <span class="text-9xl <%= color_for(card) %> w-12 bg-white"><%= unicode_for(card) %></span>
+        <% end %>
+      </div>
     </div>
-  </div>
 
-  <%= render partial: "games/form", locals: { state:, game:, player: } %>
+    <%= render partial: "games/form", locals: { state:, game:, player: } %>
+  <% end %>
 <% end %>

@@ -16,4 +16,5 @@ Rails.application.routes.draw do
   post "/games/:seed/moves", to: "games#move", as: :move
   post "/games/:seed/players", to: "games#join", as: :join
   post "/games/:seed/ready", to: "games#ready", as: :ready
+  delete "/games/:seed/moves", to: "games#reset", as: :reset
 end
