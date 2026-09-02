@@ -32,6 +32,8 @@ class GameState
   end
 
   def apply(move)
+    raise "It's #{current_player.name} turn to play" if move.player != current_player
+
     next_state = self.class.new(attributes.merge(last_move_id: move.id))
 
     if bidding_phase?
@@ -59,12 +61,16 @@ class GameState
 
   # TODO: hook
   def apply_bid(move)
+    raise "Can't bid #{move.value}" unless (0..hand_size).map(&:to_s).include? move.value
+
     self.bids = bids.merge(move.player_id => move.value.to_i)
     self.turn_player_index = next_index(turn_player_index)
     self
   end
 
   def apply_card(move)
+    raise "Can't play card" unless hands[move.player.id].include? move.value
+
     self.current_trick = current_trick + [ [ move.player_id, move.value ] ]
     self.hands = hands.merge(move.player_id => hands[move.player_id] - [ move.value ])
     self.turn_player_index = next_index(turn_player_index)
