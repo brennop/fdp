@@ -1,4 +1,4 @@
-<div id="state" class="p-4 flex-1">
+<%= turbo_frame_tag "state", class: "p-4 flex-1" do %>
   <p>round: <%= state.round %></p>
 
   <ul>
@@ -16,10 +16,5 @@
     <span class="text-9xl"><%= unicode_for(card) %></span>
   <% end %>
 
-  <details>
-    <summary>game state</summary>
-    <pre>
-      <%= JSON.pretty_generate(state.attributes) %>
-    </pre>
-  </details>
-</div>
+  <%= render partial: "games/form", locals: { state:, game:, player: } %>
+<% end %>

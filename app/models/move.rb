@@ -45,18 +45,14 @@ class Move < ApplicationRecord
   end
 
   def broadcast_state
-    state.broadcast_replace_to(
-      "state_game_#{state.game_id}",
-      target: "state",
-      partial: "games/state",
-      locals: { state:, game: }
-    )
+    game.players.each do |player|
+      # the POST will aready render
+      next if player == self.player
 
-    Player.where(id: state.alive_players).each do |player|
       player.broadcast_replace_to(
-        "form_player_#{player.id}",
-        target: "move_form",
-        partial: "games/form",
+        "player_#{player.id}",
+        target: "state",
+        partial: "games/state",
         locals: { state:, game:, player: }
       )
     end
