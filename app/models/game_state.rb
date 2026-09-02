@@ -15,15 +15,17 @@ class GameState
   attribute :current_trick, default: -> { [] } # [[player_id, card], ...]
   attribute :last_trick, default: -> { [] }    # [[player_id, card], ...]
   attribute :hands, default: -> { {} }         # { player_id => [cards] }
-  attribute :hook, :integer
   attribute :last_move_id, :integer # FIXME: might be removed
   attribute :hand_size, :integer, default: 1
 
   def self.for(move)
-    Rails.cache.fetch("game_state/#{move.id}") do
-      prev_state = move.prev&.state || move.game.state
-      prev_state.apply(move)
-    end
+    return move.prev_state.apply(move) if move.id.nil?
+
+    Rails.cache.fetch("game_state/#{move.id}") { compute(move) }
+  end
+
+  def self.compute(move)
+    move.game.moves.order(:id).reduce(initial(move.game)) { |state, move| state.apply(move) }
   end
 
   def self.initial(game)
@@ -33,7 +35,7 @@ class GameState
   end
 
   def apply(move)
-    raise "It's #{current_player.name} turn to play" if move.player != current_player
+    raise Exceptions::IllegalMove, "It's #{current_player.name} turn to play" if move.player != current_player
 
     next_state = self.class.new(attributes.merge(last_move_id: move.id))
 
@@ -60,9 +62,13 @@ class GameState
     alive_players.size <= 1
   end
 
+  def hook
+    bids
+  end
+
   # TODO: hook
   def apply_bid(move)
-    raise "Can't bid #{move.value}" unless (0..hand_size).map(&:to_s).include? move.value
+    raise Exceptions::IllegalMove, "Can't bid #{move.value}" unless (0..hand_size).map(&:to_s).include? move.value
 
     self.bids = bids.merge(move.player_id => move.value.to_i)
     self.turn_player_index = next_index(turn_player_index)
@@ -70,7 +76,7 @@ class GameState
   end
 
   def apply_card(move)
-    raise "Can't play card" unless hands[move.player.id].include? move.value
+    raise Exceptions::IllegalMove, "Can't play card" unless hands[move.player.id].include? move.value
 
     self.current_trick = current_trick + [ [ move.player_id, move.value ] ]
     self.hands = hands.merge(move.player_id => hands[move.player_id] - [ move.value ])

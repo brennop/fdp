@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-# ♠	♥	♦	♣
 class Move < ApplicationRecord
   belongs_to :player
   belongs_to :game
@@ -12,18 +11,30 @@ class Move < ApplicationRecord
   # should be the state up until now but if moves are immutable, it's only read
   # on creation, and we can assume game.state
   def state
-    GameState.for(self)
+    @state ||= GameState.for(self)
+  end
+
+  def prev_state
+    prev&.state || GameState.initial(game)
   end
 
   def prev
-    game.moves.where("id < ?", id).order(id: :desc).first
+    ancestors.last
+  end
+
+  def ancestors
+    game.moves.where(ancestor_cond).order(id: :asc)
+  end
+
+  def cached?
+    Rails.cache.exist?("game_state/#{id}")
   end
 
   private
 
   def legal_move
     state
-  rescue Exception => e
+  rescue Exceptions::IllegalMove => e
     errors.add(:base, e.message)
   end
 
@@ -39,5 +50,9 @@ class Move < ApplicationRecord
         locals: { state:, game:, player: }
       )
     end
+  end
+
+  def ancestor_cond
+    [ "id < ?", id ] if id?
   end
 end
