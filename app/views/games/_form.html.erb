@@ -6,8 +6,8 @@
       <% state.hands[player.id]&.each do |card| %>
         <li class="">
           <%= form.label :value, value: card, class: "flex flex-col gap-0.5 has-checked:-translate-y-4 ease-in-out transition" do %>
-            <span class="text-9xl <%= color_for(card) %>"><%= unicode_for(card) %></span>
-            <%= form.radio_button :value, card, disabled: !player.can_play?, class: "sr-only" %>
+            <span class="text-9xl <%= color_for(card) %> <%= state.hand_size == 1 ? 'sr-only' : '' %>"><%= unicode_for(card) %></span>
+            <%= form.radio_button :value, card, disabled: !player.can_play?, class: "sr-only", checked: state.hand_size == 1 %>
           <% end %>
         </li>
       <% end %>

@@ -10,12 +10,14 @@
           <li class="flex flex-col <%= player.in_turn? ? 'bg-amber-100' : '' %>">
             <span class="">
               <%= player.name %>
-              <% case state.current_trick.to_h[player.id] %>
+              <% case state.current_trick.to_h[player.id] || state.hand_size == 1 && local_assigns[:player].id != player.id && state.hands[player.id].first %>
                 <% in nil %>
+                <% in false %>
                 <% in card %>
                 <span class="<%= color_for(card) %> w-12 bg-white"><%= short_for(card) %></span>
               <% end %>
             </span>
+
             <span class="">
               <%= state.lives[player.id] %> ♥
               ·
