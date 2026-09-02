@@ -24,4 +24,30 @@ module CardHelper
   def unicode_for(card)
     CARDS[card]
   end
+
+  def color_for(card)
+    case card.last
+    when "S"
+      "text-black-900"
+    when "C"
+      "text-blue-700"
+    when "D"
+      "text-orange-700"
+    when "H"
+      "text-red-700"
+    end
+  end
+
+  def short_for(card)
+    case card.last
+    when "S"
+      card.first + "♠"
+    when "C"
+      card.first + "♣"
+    when "D"
+      card.first + "♦"
+    when "H"
+      card.first + "♥"
+    end
+  end
 end

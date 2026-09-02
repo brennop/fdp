@@ -1,8 +1,4 @@
 <div>
-  <% if player.in_turn? %>
-    <p>your turn</p>
-  <% end %>
-
   <%= form_with model: Move.new(game: game), url: move_path(game), class: "p-4 flex justify-between items-center" do |form| %>
     <%= form.hidden_field :game_id %>
 
@@ -10,15 +6,15 @@
       <% state.hands[player.id].each do |card| %>
         <li class="">
           <%= form.label :value, value: card, class: "flex flex-col gap-0.5 has-checked:-translate-y-4 ease-in-out transition" do %>
-            <span class="text-9xl"><%= unicode_for(card) %></span>
+            <span class="text-9xl <%= color_for(card) %>"><%= unicode_for(card) %></span>
             <%= form.radio_button :value, card, disabled: !player.can_play?, class: "sr-only" %>
           <% end %>
         </li>
       <% end %>
     </ul>
 
-    <% if state.bidding_phase? %>
-      <ul class="flex gap-1">
+    <% if state.bidding_phase? && player.in_turn? %>
+      <ul class="flex gap-1 flex-wrap">
         <% (0..state.hand_size).each do |bid| %>
           <li class="">
             <%= form.label :value, value: bid, class: "flex flex-col gap-0.5 p-4 has-checked:bg-indigo-100" do %>

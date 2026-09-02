@@ -1,20 +1,31 @@
-<%= turbo_frame_tag "state", class: "p-4 flex-1" do %>
-  <p>round: <%= state.round %></p>
+<%= turbo_frame_tag "state", class: "p-4 flex-1 flex flex-col" do %>
+  <div class="flex-1">
+    <ul class="flex gap-4 flex-wrap text-sm font-mono">
+      <% game.players.each_with_index do |player, index| %>
+        <li class="flex flex-col <%= player.in_turn? ? 'bg-amber-100' : '' %>">
+          <span class="">
+            <%= player.name %>
+            <% case state.current_trick.to_h[player.id] %>
+            <% in nil %>
+            <% in card %>
+              <span class="<%= color_for(card) %> w-12 bg-white"><%= short_for(card) %></span>
+            <% end %>
+          </span>
+          <span class="">
+            <%= state.lives[player.id] %> ♥
+            ·
+            <%= state.tricks_won[player.id] || 0 %> / <%= state.bids[player.id] || "?" %>$
+          </span>
+        </li>
+      <% end %>
+    </ul>
 
-  <ul>
-    <% game.players.each_with_index do |player, index| %>
-      <li class="flex gap-1 items-center">
-        <%= player.name %> - <%= state.lives[player.id] %>/ 5 ♥  - <%= state.tricks_won[player.id] || 0 %> / <%= state.bids[player.id] %>🪙
-        <% if player.in_turn? %>
-          <span class="w-2 h-2 bg-green-400 rounded-full inline-block"></span>
-        <% end %>
-      </li>
-    <% end %>
-  </ul>
-
-  <% state.display_trick.each do |player, card| %>
-    <span class="text-9xl"><%= unicode_for(card) %></span>
-  <% end %>
+    <div class="flex">
+      <% state.display_trick.reverse.each do |player, card| %>
+        <span class="text-9xl <%= color_for(card) %> w-12 bg-white"><%= unicode_for(card) %></span>
+      <% end %>
+    </div>
+  </div>
 
   <%= render partial: "games/form", locals: { state:, game:, player: } %>
 <% end %>
