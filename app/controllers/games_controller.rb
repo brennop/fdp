@@ -30,7 +30,7 @@ class GamesController < ApplicationController
     @move = @current_player.moves.build(move_params)
     @move.save
 
-    render :show
+    render partial: "games/state", locals: { state: @move.state, game: @move.game, player: @current_player }
   end
 
   private

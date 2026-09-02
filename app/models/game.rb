@@ -5,7 +5,9 @@ class Game < ApplicationRecord
   enum :status, { lobby: 0, playing: 1, ended: 2 }
 
   def state
-    GameState.for(self)
+    return GameState.initial(self) if moves.empty?
+
+    GameState.for(moves.last)
   end
 
   def to_param
