@@ -23,8 +23,8 @@ class Move < ApplicationRecord
 
   def legal_move
     state
-  rescue e
-    errors.add(:base, "Illegal move")
+  rescue Exception => e
+    errors.add(:base, e.message)
   end
 
   def broadcast_state

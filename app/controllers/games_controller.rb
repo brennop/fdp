@@ -28,9 +28,12 @@ class GamesController < ApplicationController
 
   def move
     @move = @current_player.moves.build(move_params)
-    @move.save
 
-    render partial: "games/state", locals: { state: @move.state, game: @move.game, player: @current_player }
+    if @move.save
+      render partial: "games/state", locals: { state: @move.state, game: @move.game, player: @current_player }
+    else
+      render partial: "games/state", locals: { state: @game.state, game: @move.game, player: @current_player }
+    end
   end
 
   private

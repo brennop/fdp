@@ -13,6 +13,7 @@ class GameState
   attribute :bids, default: -> { {} }          # { player_id => bid } for current round
   attribute :tricks_won, default: -> { {} }    # { player_id => count } for current round
   attribute :current_trick, default: -> { [] } # [[player_id, card], ...]
+  attribute :last_trick, default: -> { [] }    # [[player_id, card], ...]
   attribute :hands, default: -> { {} }         # { player_id => [cards] }
   attribute :hook, :integer
   attribute :last_move_id, :integer # FIXME: might be removed
@@ -20,7 +21,7 @@ class GameState
 
   def self.for(move)
     Rails.cache.fetch("game_state/#{move.id}") do
-      prev_state = move.prev&.state || initial(move.game)
+      prev_state = move.prev&.state || move.game.state
       prev_state.apply(move)
     end
   end
@@ -86,6 +87,7 @@ class GameState
   def resolve_trick!
     winner_id = sorted_trick.first.first
     self.tricks_won = tricks_won.merge(winner_id => tricks_won.fetch(winner_id, 0) + 1)
+    self.last_trick = sorted_trick
     self.current_trick = []
     self.turn_player_index = alive_players.index(winner_id)
   end
@@ -127,5 +129,9 @@ class GameState
 
   def sorted_trick
     current_trick.sort_by { |_, card| -Deck.rank(card) }
+  end
+
+  def display_trick
+    sorted_trick.empty? ? last_trick : sorted_trick
   end
 end
