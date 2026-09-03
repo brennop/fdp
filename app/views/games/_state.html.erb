@@ -21,7 +21,14 @@
             <span class="">
               <%= state.lives[player.id] %> ♥
               ·
-              <%= state.tricks_won[player.id] || 0 %> / <%= state.bids[player.id] || "?" %>$
+              <% case [state.bids[player.id], state.tricks_won[player.id] || 0] %>
+                <% in [nil, _] %>
+                <span class="">0/?</span>
+                <% in [a, b] if a < b %>
+                <span class="text-red-500"><%= b %>/<%= a %></span>
+                <% in [a, b] %>
+                <span class=""><%= b %>/<%= a %></span>
+              <% end %>
             </span>
           </li>
         <% end %>

@@ -125,8 +125,7 @@ class GameState
 
     self.dealer_index = next_index(dealer_index)
     self.turn_player_index = dealer_index
-    self.hand_size = (self.hand_size + 1) % (Deck.size / alive_players.count)
-    self.hand_size += 1 if self.hand_size == 0
+    self.hand_size = [(self.hand_size + 1), (Deck.size / alive_players.count)].max
     deal_hands(seed)
   end
 

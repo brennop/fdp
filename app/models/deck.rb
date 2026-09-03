@@ -94,7 +94,7 @@ class Deck
   end
 
   def self.sort_trick(trick)
-    order = has_zap?(trick.values) ? with_pig : RANK_ORDER
+    order = has_zap?(trick.to_h.values) ? with_pig : RANK_ORDER
 
     trick.sort_by do |_, card| -order[card] end
   end
