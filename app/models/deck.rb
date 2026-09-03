@@ -67,9 +67,13 @@ class Deck
     # 4
     "4C" => 40, # Zap
     "4H" => 3,
-    "4S" => 2, # TODO: PORCAO
+    "4S" => 0, # TODO: PORCAO
     "4D" => 1
   }.freeze
+
+  def self.with_pig
+    RANK_ORDER.merge("4S" => 41)
+  end
 
   def self.shuffled(seed)
     RANK_ORDER.to_a.shuffle(random: Random.new(seed)).to_h.keys
@@ -87,5 +91,15 @@ class Deck
 
   def self.rank(card)
     RANK_ORDER[card]
+  end
+
+  def self.sort_trick(trick)
+    order = has_zap?(trick.values) ? with_pig : RANK_ORDER
+
+    trick.sort_by do |_, card| -order[card] end
+  end
+
+  def self.has_zap?(cards)
+    cards.include? "4C"
   end
 end

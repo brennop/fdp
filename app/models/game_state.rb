@@ -148,7 +148,7 @@ class GameState
   end
 
   def sorted_trick
-    current_trick.sort_by { |_, card| -Deck.rank(card) }
+    Deck.sort_trick(current_trick)
   end
 
   def display_trick
