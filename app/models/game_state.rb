@@ -75,7 +75,7 @@ class GameState
   end
 
   def legal_bids
-    return (0..hand_size).to_a - [hook] if last_bidder?
+    return (0..hand_size).to_a - [ hook ] if last_bidder?
 
     (0..hand_size)
   end
@@ -125,7 +125,7 @@ class GameState
 
     self.dealer_index = next_index(dealer_index)
     self.turn_player_index = dealer_index
-    self.hand_size = [(self.hand_size + 1), (Deck.size / alive_players.count)].max
+    self.hand_size = [ (self.hand_size + 1), (Deck.size / alive_players.count) ].min
     deal_hands(seed)
   end
 

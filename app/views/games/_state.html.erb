@@ -2,7 +2,7 @@
   <% if state.game_over? %>
     <span><strong class="font-semibold">winner:</strong> <%= state.winner.name %></span>
 
-    <%= button_to "again", reset_path(seed: @game.seed), method: :delete %>
+    <%= button_to "again", reset_path(seed: game.seed), method: :delete %>
   <% else %>
     <div class="flex-1">
       <ul class="flex gap-4 flex-wrap text-sm font-mono">
@@ -39,6 +39,15 @@
           <p>table bid: <%= state.bids.values.sum %> </p>
         </li>
       </ul>
+
+        <details>
+          <summary class="p-2">help</summary>
+          <div class="flex flex-wrap">
+            <% Deck.cards.each do |card, _| %>
+              <span class="text-8xl <%= color_for(card) %>"><%= unicode_for(card) %></span>
+            <% end %>
+          </div>
+        </details>
 
       <div class="flex">
         <% state.display_trick.reverse.each do |player, card| %>

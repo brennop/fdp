@@ -71,6 +71,10 @@ class Deck
     "4D" => 1
   }.freeze
 
+  def self.cards
+    RANK_ORDER.sort_by { |k, v| -v }.to_h.keys
+  end
+
   def self.with_pig
     RANK_ORDER.merge("4S" => 41)
   end

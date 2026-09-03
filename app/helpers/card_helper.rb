@@ -32,7 +32,7 @@ module CardHelper
     when "C"
       "text-blue-700"
     when "D"
-      "text-orange-700"
+      "text-orange-600"
     when "H"
       "text-red-700"
     end
