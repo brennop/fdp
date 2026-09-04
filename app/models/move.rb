@@ -8,6 +8,7 @@ class Move < ApplicationRecord
 
   after_create_commit :cache_state
   after_create_commit :broadcast_state
+  after_create_commit :perform_timeout
 
   # should be the state up until now but if moves are immutable, it's only read
   # on creation, and we can assume game.state
@@ -54,5 +55,9 @@ class Move < ApplicationRecord
 
   def cache_state
     Rails.cache.write("game_state/#{id}", state)
+  end
+
+  def perform_timeout
+    MoveTimeoutJob.set(wait: 30.seconds).perform_later id
   end
 end
