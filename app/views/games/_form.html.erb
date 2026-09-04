@@ -2,15 +2,19 @@
   <%= form_with model: Move.new(game: game), url: move_path(game), class: "p-4 flex justify-between items-center" do |form| %>
     <%= form.hidden_field :game_id %>
 
-    <ul class="flex flex-wrap gap-1">
+    <ul class="flex flex-wrap gap-1 perspective-normal">
       <% state.hands[player.id]&.each do |card| %>
-        <li class="">
-          <%= form.label :value, value: card, class: "flex flex-col gap-0.5 has-checked:-translate-y-4 ease-in-out transition" do %>
+        <li class="bg-pink-200 block transform-3d" 
+            data-controller="card" 
+            data-card-card-value="<%= card %>" 
+            data-action="mousemove->card#mouseMove mouseleave->card#mouseLeave"
+            >
+          <%= form.label :value, value: card, class: "flex flex-col gap-0.5" do %>
             <span class="text-9xl <%= state.hand_size != 1 && color_for(card) %>">
               <%= state.hand_size != 1 ? unicode_for(card) : '🂠' %>
             </span>
-            <%= form.radio_button :value, card, disabled: !player.can_play?, class: "sr-only" %>
           <% end %>
+          <%= form.radio_button :value, card, disabled: !player.can_play?, class: "sr-only" %>
         </li>
       <% end %>
     </ul>
