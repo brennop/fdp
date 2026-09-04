@@ -13,7 +13,7 @@ class Game < ApplicationRecord
   end
 
   def ready?
-    players.size == 0 && players.where(ready: false).empty?
+    players.size >= 3 && players.where(ready: false).empty?
   end
 
   def start!
