@@ -1,4 +1,4 @@
-<%= turbo_frame_tag "state", class: "p-4 flex-1 flex flex-col" do %>
+<%= turbo_frame_tag "state", class: "p-4 flex-1 flex flex-col perspective-normal", data: { controller: "board" } do %>
   <% if state.game_over? %>
     <span><strong class="font-semibold">winner:</strong> <%= state.winner.name %></span>
 
@@ -40,13 +40,13 @@
         </li>
       </ul>
 
-        <details>
-          <summary class="p-2">help</summary>
-          <div class="flex flex-wrap">
-            <% Deck.cards.each do |card, _| %>
-              <span class="text-8xl <%= color_for(card) %>"><%= unicode_for(card) %></span>
-            <% end %>
-          </div>
+      <details>
+        <summary class="p-2">help</summary>
+        <div class="flex flex-wrap">
+          <% Deck.cards.each do |card, _| %>
+            <span class="text-8xl <%= color_for(card) %>"><%= unicode_for(card) %></span>
+          <% end %>
+        </div>
         </details>
 
       <div class="flex">
@@ -54,6 +54,14 @@
           <span class="text-9xl <%= color_for(card) %> w-12 bg-white"><%= unicode_for(card) %></span>
         <% end %>
       </div>
+
+      <ul class="bg-slate-300 h-64" data-board-target="table">
+        <% state.current_trick.each_with_index do |(player, card), index| %>
+          <li class="block transform-3d shadow-lg rounded-4xl absolute w-36 h-48 -top-18 -left-24" data-board-target="tableCard" data-card="<%= card %>" data-index="<%= index %>">
+            <span class="flex flex-col gap-0.5 bg-[url(/classic.png)] w-36 h-48" style="<%= background_position_for(card) %>"></span>
+          </li>
+        <% end %>
+      </ul>
     </div>
 
     <%= render partial: "games/form", locals: { state:, game:, player: } %>

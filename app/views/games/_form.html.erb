@@ -1,37 +1,28 @@
-<div>
-  <%= form_with model: Move.new(game: game), url: move_path(game), class: "p-4 flex justify-between items-center" do |form| %>
-    <%= form.hidden_field :game_id %>
+<%= form_with model: Move.new(game: game), url: move_path(game), class: "p-4 flex justify-between items-center flex-1", data: { "board-target": "hand" } do |form| %>
+  <%= form.hidden_field :game_id %>
 
-    <ul class="flex flex-wrap gap-1 perspective-normal">
-      <% state.hands[player.id]&.each do |card| %>
-        <li class="bg-pink-200 block transform-3d" 
-            data-controller="card" 
-            data-card-card-value="<%= card %>" 
-            data-action="mousemove->card#mouseMove mouseleave->card#mouseLeave"
-            >
-          <%= form.label :value, value: card, class: "flex flex-col gap-0.5" do %>
-            <span class="text-9xl <%= state.hand_size != 1 && color_for(card) %>">
-              <%= state.hand_size != 1 ? unicode_for(card) : '🂠' %>
-            </span>
+  <ul class="">
+    <% state.hands[player.id]&.each_with_index do |card, index| %>
+      <li class="block transform-3d shadow-lg rounded-4xl absolute w-36 h-48 -top-18 -left-24" data-board-target="handCard" data-card="<%= card %>" data-index="<%= index %>">
+        <%= form.label :value, value: card, class: "flex flex-col gap-0.5 bg-[url(/classic.png)] w-36 h-48", style: background_position_for(card) do %>
+        <% end %>
+        <%= form.radio_button :value, card, disabled: !player.can_play?, class: "sr-only", data: {} %>
+      </li>
+    <% end %>
+  </ul>
+
+  <% if state.bidding_phase? && player.in_turn? %>
+    <ul class="flex gap-1 flex-wrap">
+      <% state.legal_bids.each do |bid| %>
+        <li class="">
+          <%= form.label :value, value: bid, class: "flex flex-col gap-0.5 p-4 has-checked:bg-indigo-100" do %>
+            <span class="text-2xl"><%= bid %></span>
+            <%= form.radio_button :value, bid, disabled: !player.in_turn?, class: "sr-only" %>
           <% end %>
-          <%= form.radio_button :value, card, disabled: !player.can_play?, class: "sr-only" %>
         </li>
       <% end %>
     </ul>
-
-    <% if state.bidding_phase? && player.in_turn? %>
-      <ul class="flex gap-1 flex-wrap">
-        <% state.legal_bids.each do |bid| %>
-          <li class="">
-            <%= form.label :value, value: bid, class: "flex flex-col gap-0.5 p-4 has-checked:bg-indigo-100" do %>
-              <span class="text-2xl"><%= bid %></span>
-              <%= form.radio_button :value, bid, disabled: !player.in_turn?, class: "sr-only" %>
-            <% end %>
-          </li>
-        <% end %>
-      </ul>
-    <% end %>
-
-    <%= form.submit "play", class: "p-2 bg-green-300 text-4xl" %>
   <% end %>
-</div>
+
+  <%= form.submit "play", class: "p-2 bg-green-300 text-4xl" %>
+<% end %>
