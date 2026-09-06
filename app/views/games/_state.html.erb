@@ -40,19 +40,21 @@
         </li>
       </ul>
 
-        <details>
-          <summary class="p-2">help</summary>
-          <div class="flex flex-wrap">
-            <% Deck.cards.each do |card, _| %>
-              <span class="text-8xl <%= color_for(card) %>"><%= unicode_for(card) %></span>
-            <% end %>
-          </div>
-        </details>
+      <details>
+        <summary class="p-2">help</summary>
+        <div class="flex flex-wrap">
+          <% Deck.cards.each do |card, _| %>
+            <span class="text-8xl <%= color_for(card) %>"><%= unicode_for(card) %></span>
+          <% end %>
+        </div>
+      </details>
 
-      <div class="flex">
-        <% state.display_trick.reverse.each do |player, card| %>
-          <span class="text-9xl <%= color_for(card) %> w-12 bg-white"><%= unicode_for(card) %></span>
-        <% end %>
+      <div class="layout" id="layout">
+        <div class="flex">
+          <% state.display_trick.reverse.each do |player, card| %>
+            <span id="<%= card %>" class="inline-block text-9xl <%= color_for(card) %> bg-white" style="view-transition-name: card_<%= card %>"><%= unicode_for(card) %></span>
+          <% end %>
+        </div>
       </div>
     </div>
 

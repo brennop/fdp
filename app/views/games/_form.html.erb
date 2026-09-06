@@ -4,7 +4,7 @@
 
     <ul class="flex flex-wrap gap-1">
       <% state.hands[player.id]&.each do |card| %>
-        <li class="select-none" data-controller="card" data-card-card-value="<%= card %>">
+        <li class="select-none" data-controller="card" data-card-card-value="<%= card %>" style="view-transition-name: card_<%= card %>">
           <%= form.label :value, value: card, class: "flex flex-col gap-0.5 has-checked:-translate-y-4 ease-in-out transition" do %>
             <span class="text-9xl <%= state.hand_size != 1 && color_for(card) %>">
               <%= state.hand_size != 1 ? unicode_for(card) : '🂠' %>
